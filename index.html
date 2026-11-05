@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>نظام الدخول الآمن بخطوتين</title>
+<meta name="theme-color" content="#0f1c24">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🔐%3C/text%3E%3C/svg%3E">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<style>
+:root{--bg:#0f1c24;--panel:#162833;--line:#27414f;--ink:#e8f1f5;--mute:#8fa8b5;--ok:#3ecf8e;--bad:#ff6b6b;--acc:#f2b84b;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Tahoma,Arial,sans-serif;line-height:1.7}
+.wrap{max-width:1000px;margin:0 auto;padding:20px;display:grid;grid-template-columns:1.1fr .9fr;gap:20px}
+@media(max-width:800px){.wrap{grid-template-columns:1fr}}
+h1{font-size:1.5rem;margin:0 0 4px}h2{font-size:1.1rem;margin:0 0 12px}
+.sub{color:var(--mute);margin:0 0 18px}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:16px}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tabs button{flex:1}
+button{font:inherit;background:#22404f;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 14px;cursor:pointer}
+button:hover{background:#2b5063}button.p{background:var(--acc);color:#1b1405;border-color:var(--acc);font-weight:700}
+button.on{border-color:var(--acc)}
+input{width:100%;font:inherit;background:#0d1920;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px;margin:4px 0 12px}
+input:focus,button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+label{color:var(--mute);font-size:.9rem}
+.msg{padding:9px 12px;border-radius:8px;margin-top:10px}
+.msg.e{background:#3a1d22;color:#ffb3b3}.msg.o{background:#12332a;color:#9ff0c9}
+.qr{background:#fff;display:inline-block;padding:8px;border-radius:8px}
+.qr svg{display:block;width:170px;height:170px}
+.key{direction:ltr;font-family:Consolas,monospace;background:#0d1920;padding:6px 10px;border-radius:6px;display:inline-block;word-break:break-all}
+.code{direction:ltr;font-family:Consolas,monospace;font-size:2rem;letter-spacing:6px;color:var(--acc);text-align:center}
+.bar{height:6px;background:#0d1920;border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;background:var(--acc);transition:width .25s linear}
+.hide{display:none}button{-webkit-user-select:none;user-select:none}.ov{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50}.ov.hide{display:none}td input{margin:0}details{background:#0d1920;border:1px solid var(--line);border-radius:8px;padding:4px 12px;margin-bottom:10px}summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center}details li{margin:4px 0}details ul{padding-right:20px;margin:6px 0}.tg{color:var(--acc)}select{width:100%;font:inherit;background:#0d1920;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px;margin:4px 0 12px}.codes{direction:ltr;display:grid;grid-template-columns:1fr 1fr;gap:6px;font-family:Consolas,monospace;background:#0d1920;padding:10px;border-radius:8px;text-align:center}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+td,th{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right}
+.log{max-height:300px;overflow:auto;font-size:.88rem}
+.log div{padding:5px 0;border-bottom:1px solid var(--line)}
+.ok{color:var(--ok)}.bad{color:var(--bad)}.t{color:var(--mute);direction:ltr;display:inline-block}
+html{-webkit-text-size-adjust:100%}
+body{overflow-x:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+.wrap>*{min-width:0}
+input,select{font-size:16px}
+button{min-height:44px}
+input[type=checkbox]{width:22px!important;height:22px;min-height:0}
+#gt{table-layout:fixed}
+#gt td:nth-child(2),#gt th:nth-child(2){width:84px}
+#gt td:nth-child(3),#gt th:nth-child(3){width:78px}
+#gt td input{width:100%}
+#gt button{padding:6px 8px;width:100%}
+@media(max-width:640px){
+ .wrap{padding:12px;gap:12px}
+ .box{padding:14px}
+ h1{font-size:1.25rem}
+ .tabs button{padding:10px 6px}
+ .log{max-height:240px}
+ #ut,#ut tbody{display:block}
+ #ut tr:first-child{display:none}
+ #ut tr{display:block;border:1px solid var(--line);border-radius:8px;margin-bottom:10px;padding:6px 10px}
+ #ut td{display:flex;justify-content:space-between;align-items:center;gap:10px;border:0;padding:5px 0}
+ #ut td::before{content:attr(data-l);color:var(--mute);font-size:.85rem}
+ #ut td:last-child{flex-wrap:wrap;justify-content:flex-start}
+ #ut td:last-child::before{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<main>
+ <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;position:sticky;top:0;z-index:20;background:var(--bg);padding:8px 0"><button id="bk" class="hide" aria-label="رجوع" style="font-size:1.2rem;padding:6px 14px">→ رجوع</button><h1 style="margin:0">نظام الدخول الآمن بخطوتين</h1></div>
+ <div id="sw" class="msg e hide" style="margin:0 0 14px">⚠ هذا المتصفح لا يسمح بحفظ البيانات (غالباً لأن الملف فُتح من واتساب أو من رابط يبدأ بـ content://). أي حساب تنشئه سيضيع عند إعادة تحميل الصفحة. احفظ الملف بذاكرة الجوال وافتحه من تطبيق «الملفات»، أو افتحه على اللابتوب.</div>
+ <p class="sub">كلمة مرور مشفّرة + رمز OTP + قفل الحساب + سجل أمني</p>
+
+ <div id="auth" class="box">
+  <div class="tabs"><button id="tL" class="on">تسجيل الدخول</button><button id="tR">إنشاء حساب</button></div>
+
+  <section id="vL">
+   <label>اسم المستخدم</label><input id="lu" autocomplete="off">
+   <label>كلمة المرور</label><input id="lp" type="password" style="margin-bottom:6px">
+   <label style="display:flex;gap:8px;align-items:center;margin:0 0 12px"><input type="checkbox" class="sh" data-t="lp" style="width:auto;margin:0"> إظهار كلمة المرور</label>
+   <button class="p" id="bL">متابعة</button> <button id="bB">الدخول بالباركود</button>
+   <br><br><button id="bH">نسيت كلمة المرور؟ اعرض التلميح</button>
+   <br><br><button id="bAb">عن المشروع: مفاهيم هندسة البرمجيات</button>
+  </section>
+
+  <section id="vB" class="hide">
+   <h2>الدخول بالباركود</h2>
+   <p class="sub">وجّه بطاقة الباركود نحو الكاميرا، أو استخدم جهاز قارئ باركود.</p>
+   <video id="vid" playsinline muted style="width:100%;border-radius:8px;display:none;margin-bottom:10px"></video><canvas id="cv" class="hide"></canvas>
+   <button class="p" id="bCam">تشغيل الكاميرا</button>
+   <p class="sub" style="margin-top:14px">أو الصق قيمة الباركود هنا (أو امسحها بجهاز القارئ):</p>
+   <input id="bt" autocomplete="off" style="direction:ltr">
+   <button id="bBt">دخول</button> <button id="bBk">رجوع</button>
+  </section>
+
+  <section id="vA" class="hide">
+   <h2>هندسة البرمجيات: تطبيق المفاهيم على المشروع</h2>
+   <details open><summary>1) Software Application Domains</summary>
+    <p>تصنيف مجالات تطبيقات البرمجيات، وموقع مشروعنا منها:</p>
+    <ul>
+     <li>✘ System software: لا. لكن البرنامج يعتمد على نظام التشغيل والمتصفح.</li>
+     <li>✔ Application software: نعم. برنامج لمهام المستخدم النهائي (الدخول وعرض الدرجات).</li>
+     <li>✘ Engineering/scientific software: لا.</li>
+     <li>✘ Embedded software: لا.</li>
+     <li>✘ Product-line software: لا.</li>
+     <li class="tg">✔ Web/mobile applications: نعم، وهو التصنيف الأساسي. يعمل بالمتصفح ومصمم لشاشة الجوال.</li>
+     <li>✘ Artificial intelligence software: لا. البرنامج نفسه لا يستعمل الذكاء الاصطناعي.</li>
+    </ul>
+   </details>
+   <details><summary>2) Software process</summary>
+    <p>هو مجموعة أنشطة مترابطة تنتج المنتج البرمجي. وله أربعة أنشطة أساسية، وهذا تطبيقها على مشروعنا:</p>
+    <ul>
+     <li><b>Specification:</b> حددنا ماذا يفعل البرنامج (دخول بخطوتين، قفل الحساب، صلاحيات، درجات) وقيوده (بدون سيرفر).</li>
+     <li><b>Development (Design and Implementation):</b> صممنا هيكل البيانات والشاشات ثم كتبنا الكود بـ HTML وCSS وJavaScript.</li>
+     <li><b>Validation:</b> اختبرنا كل ميزة (يدوياً وباختبار آلي) للتأكد أنها تحقق المطلوب.</li>
+     <li><b>Evolution:</b> عدّلنا البرنامج حسب الملاحظات: الصلاحيات، تصميم الجوال، سهم الرجوع، وغيرها.</li>
+    </ul>
+    <p><b class="tg">نموذج التطوير:</b> Incremental development. أضفنا الميزات على دفعات، وكل دفعة تُجرَّب قبل التي بعدها، وليس بتسلسل صارم مثل Waterfall.</p>
+   </details>
+   <details><summary>3) Requirements Engineering</summary>
+    <p>هي عملية فهم وتحديد وتوثيق الخدمات والقيود المطلوبة للنظام. أنشطتها الأربعة في مشروعنا:</p>
+    <ul>
+     <li><b>Feasibility study:</b> هل التنفيذ ممكن؟ نعم كملف واحد بدون سيرفر. والقيد: البيانات لا تُشارَك بين الأجهزة.</li>
+     <li><b>Elicitation and analysis:</b> جمعنا الاحتياجات من الدكتور والمستخدمين (الطالب والمدير) وحلّلناها.</li>
+     <li><b>Specification:</b> وثّقناها كمتطلبات مستخدم ومتطلبات نظام (بالفقرة التالية).</li>
+     <li><b>Validation:</b> تأكدنا بالعرض والتجربة أن المتطلبات الموثقة تمثل حاجة المستخدم فعلاً.</li>
+    </ul>
+   </details>
+   <details><summary>4) Types of Software Requirements</summary>
+    <p><b class="tg">User requirements:</b> عبارات عالية المستوى بلغة طبيعية عن الخدمات والقيود والسلوك الخارجي للنظام:</p>
+    <ul>
+     <li>UR1: يدخل الطالب باسمه وكلمة مروره فيرى درجاته.</li>
+     <li>UR2: لا يرى الطالب ولا يعدّل درجات غيره.</li>
+     <li>UR3: يضيف المدير طلاباً ويعدّل موادهم ودرجاتهم أو يحذفها.</li>
+     <li>UR4: يطلب النظام خطوة تحقق ثانية بعد كلمة المرور.</li>
+     <li>UR5: يُقفل الحساب بعد محاولات فاشلة متكررة.</li>
+    </ul>
+    <p><b class="tg">System requirements:</b> وصف تفصيلي للوظائف والقيود، يكتب للمطورين:</p>
+    <ul>
+     <li>SR1: تُخزَّن كلمة المرور كبصمة SHA-256 مع Salt عشوائي.</li>
+     <li>SR2: رمز OTP من 6 أرقام يتغير كل 30 ثانية (RFC 6238) ويُقبل بفارق ±30 ثانية.</li>
+     <li>SR3: بعد 3 محاولات فاشلة يُقفل الحساب مدة قابلة للضبط (الافتراضي 5 دقائق)، مع تأخير 3 ثم 10 ثوانٍ.</li>
+     <li>SR4: تُفحص الصلاحية (مدير/طالب) داخل كل عملية.</li>
+     <li>SR5: تُسجَّل كل محاولة دخول بالسجل الأمني مع وقتها.</li>
+    </ul>
+    <p><b class="tg">Functional vs Non-functional:</b> الوظيفية هي ما سبق. وغير الوظيفية: الأمان، وسهولة الاستخدام (واجهة عربية متوافقة مع الجوال)، وسرعة الاستجابة، وحفظ البيانات تلقائياً.</p>
+   </details>
+  </section>
+
+  <section id="vR" class="hide">
+   <label>اسم المستخدم</label><input id="ru" autocomplete="off">
+   <label>كلمة المرور (8 أحرف على الأقل)</label><input id="rp" type="password">
+   <div class="bar" style="margin:-4px 0 4px;height:12px;border:1px solid var(--line)"><i id="sb" style="width:0"></i></div><p class="sub" id="st" style="margin:0 0 12px;min-height:1.7em">قوة كلمة المرور: اكتب كلمة المرور لتظهر هنا</p>
+   <label style="display:flex;gap:8px;align-items:center;margin:0 0 12px"><input type="checkbox" class="sh" data-t="rp" style="width:auto;margin:0"> إظهار كلمة المرور</label>
+   <button class="p" id="bR">إنشاء الحساب</button>
+  </section>
+
+  <section id="vQ" class="hide">
+   <h2>اربط حسابك بتطبيق المصادقة</h2>
+   <p class="sub">افتح Google Authenticator واختر «مسح رمز QR» ثم وجّه الكاميرا نحو الرمز.</p>
+   <div class="qr" id="qr"></div>
+   <p class="sub">أو أدخل المفتاح يدوياً:</p><div class="key" id="sk"></div><br><br><h2>بطاقة الدخول بالباركود</h2><div id="qb"></div><br><h2>الرموز الاحتياطية</h2><div id="qc"></div><br>
+   <button class="p" id="bQ">تم، الذهاب لتسجيل الدخول</button>
+  </section>
+
+  <section id="vO" class="hide">
+   <h2>الخطوة الثانية: رمز التحقق</h2>
+   <label>أدخل رمز التطبيق (6 أرقام) أو رمزاً احتياطياً (8 أرقام)</label>
+   <input id="oc" inputmode="numeric" maxlength="9" autocomplete="off" style="direction:ltr;text-align:center;font-size:1.4rem">
+   <button class="p" id="bO">تحقق</button>
+   <div class="box" style="margin-top:16px">
+    <h2>تطبيق المصادقة (محاكاة للعرض)</h2>
+    <div class="code" id="sim">------</div><div class="bar"><i id="bar"></i></div>
+    <p class="sub" style="margin:8px 0 0">في الواقع يظهر هذا الرمز على جوال المستخدم فقط.</p>
+   </div>
+  </section>
+
+  <div id="msg"></div>
+  <div class="box" style="margin:18px 0 0">
+   <label>وقت قفل الحساب بالدقائق (بعد 3 محاولات فاشلة)</label>
+   <input id="lm" type="number" min="0.1" step="any" style="direction:ltr;width:130px">
+   <p class="sub" style="margin:0">غيّر الرقم متى تريد، ويُحفظ تلقائياً ويُطبّق على أي قفل جديد.</p>
+  </div>
+ </div>
+
+ <div id="portal" class="box hide">
+  <h2>بوابة درجات الطلاب (صفحة محمية)</h2>
+  <p class="ok" id="who"></p>
+  <div class="msg" id="ll" style="margin:0 0 14px;background:#12212b"></div>
+  <div id="ap" class="hide">
+   <h2 style="font-size:1rem">قائمة الطلاب</h2>
+   <p class="sub" style="margin:0 0 12px">اضغط على اسم أي طالب لفتح ملفه وإضافة المواد والدرجات.</p>
+   <button class="p" id="bNs">+ إضافة طالب</button>
+   <div id="nsf" class="box hide" style="margin-top:12px">
+    <label>اسم الطالب (هو اسم الدخول الذي يكتبه الطالب)</label>
+    <input id="nn" autocomplete="off">
+    <label>كلمة المرور للطالب</label>
+    <input id="np" type="password" style="margin-bottom:6px">
+    <label style="display:flex;gap:8px;align-items:center;margin:0 0 12px"><input type="checkbox" class="sh" data-t="np" style="width:auto;margin:0"> إظهار كلمة المرور</label>
+    <button id="bGen" type="button" style="margin-bottom:12px">توليد كلمة مرور قوية تلقائياً</button>
+    <button class="p" id="bNc">إنشاء حساب الطالب</button> <button id="bNx">إلغاء</button>
+    <div id="nm"></div>
+   </div>
+   <div id="nr"></div><br>
+   <div id="fw" class="hide"><label>تصفية القائمة بالاسم</label><input id="fs" autocomplete="off" placeholder="اكتب جزءاً من الاسم"></div>
+   <div style="overflow-x:auto"><table id="at"></table></div>
+  </div>
+  <div id="fv">
+   <button id="bBk2" class="hide" style="margin-bottom:10px">→ رجوع إلى قائمة الطلاب</button>
+   <h2 id="gh" style="font-size:1rem;margin-top:6px">درجاتك</h2>
+   <label>اسم الطالب</label><input id="sn"><table id="gt"></table><br><button id="bA" class="hide">إضافة مادة</button><br>
+   <div id="fq" class="box hide" style="margin-top:16px">
+    <h2 style="font-size:1rem">بيانات التحقق بخطوتين للطالب</h2>
+    <p class="sub">يمسح الطالب هذا الرمز بتطبيق Google Authenticator:</p>
+    <div id="fqr"></div>
+    <p class="sub" style="margin-top:12px">أو المفتاح اليدوي:</p><div class="key" id="fk"></div>
+    <p class="sub" style="margin-top:16px">الرموز الاحتياطية:</p>
+    <div id="fc"></div><br>
+    <button id="bFc">إنشاء رموز احتياطية جديدة</button>
+   </div>
+   <div id="fa" class="box hide" style="margin-top:16px">
+    <p class="sub" id="fl" style="margin:0 0 10px"></p>
+    <label>تعيين كلمة مرور جديدة للطالب</label>
+    <input id="fp" type="password" style="margin-bottom:6px">
+    <label style="display:flex;gap:8px;align-items:center;margin:0 0 12px"><input type="checkbox" class="sh" data-t="fp" style="width:auto;margin:0"> إظهار كلمة المرور</label>
+    <button id="bFp">تعيين كلمة المرور</button><div id="fm"></div><br><br>
+    <button id="bFd">حذف هذا الطالب نهائياً</button>
+   </div>
+  </div>
+  <div id="adm" class="box hide" style="margin-top:18px">
+   <h2>لوحة المدير: كل الحسابات</h2>
+   <div style="overflow-x:auto"><table id="ut"></table></div><br>
+   <button id="bUA">فك قفل جميع الحسابات</button><div id="am"></div>
+  </div>
+  <br><div class="box" style="margin-top:14px">
+   <h2>إعدادات الحساب</h2>
+   <label>تلميح كلمة المرور (يذكّرك بها)</label>
+   <input id="hn" autocomplete="off" placeholder="اكتب أي شي يذكّرك بكلمة المرور">
+   <p class="sub" style="margin:-6px 0 16px">ينحفظ تلقائياً. لا تكتب فيه كلمة المرور نفسها.</p>
+   <h2 style="font-size:1rem">تغيير كلمة المرور</h2>
+   <label>كلمة المرور الحالية</label><input id="cp0" type="password" style="margin-bottom:6px">
+   <label style="display:flex;gap:8px;align-items:center;margin:0 0 12px"><input type="checkbox" class="sh" data-t="cp0" style="width:auto;margin:0"> إظهار كلمة المرور</label>
+   <label>كلمة المرور الجديدة</label><input id="cp1" type="password" style="margin-bottom:6px">
+   <label style="display:flex;gap:8px;align-items:center;margin:0 0 12px"><input type="checkbox" class="sh" data-t="cp1" style="width:auto;margin:0"> إظهار كلمة المرور</label>
+   <button id="bP">تغيير كلمة المرور</button><div id="pm"></div><br><br>
+   <button id="bN">إنشاء باركود دخول جديد</button> <button id="bC">إنشاء رموز احتياطية جديدة</button>
+   <div id="pb"></div><div id="pc"></div>
+  </div>
+  <button id="bX">تسجيل الخروج</button>
+ </div>
+</main>
+
+<aside>
+ <div class="box">
+  <h2>السجل الأمني</h2>
+  <div id="al"></div><div id="ch"></div><div class="log" id="log"></div><br>
+  <button id="bD">مسح كل البيانات</button> <button id="bE">تصدير السجل (Excel)</button>
+ </div>
+</aside>
+</div>
+
+<div id="cf" class="ov hide"><div class="box" style="max-width:360px;width:100%;margin:0"><p id="cm" style="margin:0 0 16px;font-size:1.05rem"></p><button class="p" id="cy">نعم، تأكيد</button> <button id="cn">إلغاء</button></div></div>
+<script>
+const $=id=>document.getElementById(id), enc=new TextEncoder();
+let mem={users:{},log:[]};
+function load(){try{const d=localStorage.getItem('sa_db');if(d)mem=JSON.parse(d)}catch(e){}}
+function save(){try{localStorage.setItem('sa_db',JSON.stringify(mem))}catch(e){}}
+load();
+
+const hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+async function hashPw(p,salt){return hex(await crypto.subtle.digest('SHA-256',enc.encode(salt+p)))}
+const A='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+function b32(bytes){let bits='',o='';for(const x of bytes)bits+=x.toString(2).padStart(8,'0');for(let i=0;i<bits.length;i+=5)o+=A[parseInt(bits.slice(i,i+5).padEnd(5,'0'),2)];return o}
+function unb32(s){let bits='';for(const c of s)bits+=A.indexOf(c).toString(2).padStart(5,'0');const r=[];for(let i=0;i+8<=bits.length;i+=8)r.push(parseInt(bits.slice(i,i+8),2));return new Uint8Array(r)}
+async function totp(secret,t){
+ const c=Math.floor(t/30000),buf=new ArrayBuffer(8),v=new DataView(buf);
+ v.setUint32(0,Math.floor(c/4294967296));v.setUint32(4,c>>>0);
+ const k=await crypto.subtle.importKey('raw',unb32(secret),{name:'HMAC',hash:'SHA-1'},false,['sign']);
+ const h=new DataView(await crypto.subtle.sign('HMAC',k,buf)),o=h.getUint8(19)&15;
+ return String((h.getUint32(o)&0x7fffffff)%1000000).padStart(6,'0');
+}
+
+function log(ok,text){mem.log.unshift({ok,text,t:new Date().toLocaleTimeString('en-GB'),ts:Date.now()});mem.log=mem.log.slice(0,60);save();renderLog()}
+function renderLog(){
+ const L=mem.log;
+ $('log').innerHTML=L.length?L.map(l=>`<div><span class="${l.ok?'ok':'bad'}">${l.ok?'✔':'✘'}</span> ${l.text} <span class="t">${l.t}</span></div>`).join(''):'<div class="sub">لا توجد محاولات بعد.</div>';
+ const okN=L.filter(l=>l.ok).length,badN=L.length-okN,mx=Math.max(okN,badN,1);
+ $('ch').innerHTML=L.length?`<div class="sub" style="margin:0">ناجحة: ${okN}</div><div class="bar"><i style="width:${okN/mx*100}%;background:var(--ok)"></i></div><div class="sub" style="margin:6px 0 0">فاشلة: ${badN}</div><div class="bar"><i style="width:${badN/mx*100}%;background:var(--bad)"></i></div><br>`:'';
+ const recent=L.filter(l=>!l.ok&&l.ts&&Date.now()-l.ts<600000).length;
+ $('al').innerHTML=recent>=5?`<div class="msg e" style="margin:0 0 14px">⚠ نشاط مشبوه: ${recent} محاولات فاشلة خلال آخر 10 دقائق.</div>`:'';
+}
+function say(t,type){$('msg').innerHTML=t?`<div class="msg ${type}">${t}</div>`:''}
+const esc=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let curView='vL';
+function show(v){curView=v;$('bk').classList.toggle('hide',v==='vL');stopCam();clearInterval(lt);['vL','vR','vQ','vO','vB','vA'].forEach(x=>$(x).classList.toggle('hide',x!==v));$('tL').classList.toggle('on',v==='vL'||v==='vO'||v==='vB');$('tR').classList.toggle('on',v==='vR'||v==='vQ');say('')}
+
+const lockMs=()=>(Number(mem.settings&&mem.settings.lockMin)||5)*60000;
+let pending=null,timer=null,lt=null,session=null;
+$('tL').onclick=()=>show('vL');$('tR').onclick=()=>show('vR');
+
+$('bR').onclick=async()=>{
+ const u=$('ru').value.trim(),p=$('rp').value;
+ if(!u||p.length<8)return say('اكتب اسم مستخدم وكلمة مرور من 8 أحرف على الأقل.','e');
+ const pe=pwError(p);if(pe)return say(pe,'e');
+ if(mem.users[u])return say('اسم المستخدم موجود مسبقاً.','e');
+ const salt=hex(crypto.getRandomValues(new Uint8Array(16))),secret=b32(crypto.getRandomValues(new Uint8Array(20)));
+ const tok=hex(crypto.getRandomValues(new Uint8Array(16))),codes=newCodes(),first=!Object.keys(mem.users).length;
+ mem.users[u]={salt,hash:await hashPw(p,salt),tk:await hashPw(tok,salt),bc:await hashCodes(codes,salt),secret,fails:0,locked:false,role:first?'admin':'student'};save();
+ log(true,`إنشاء حساب: ${esc(u)}`);
+ const uri=`otpauth://totp/SecureLogin:${encodeURIComponent(u)}?secret=${secret}&issuer=SecureLogin`;
+ let svg='';try{const q=qrcode(0,'M');q.addData(uri);q.make();svg=q.createSvgTag(4,0)}catch(e){}
+ $('qr').innerHTML=svg||'<span style="color:#333">تعذّر تحميل مكتبة QR (يلزم إنترنت). استخدم المفتاح اليدوي.</span>';
+ $('sk').textContent=secret;$('rp').value='';badge(u,tok,$('qb'));showCodes(codes,$('qc'));meter();show('vQ');if(first)say('هذا أول حساب بالبرنامج، لذلك صار حساب «المدير».','o');
+};
+$('bQ').onclick=()=>show('vL');
+
+$('bL').onclick=async()=>{
+ const u=$('lu').value.trim(),p=$('lp').value,r=mem.users[u];
+ if(!r){log(false,`محاولة بمستخدم غير موجود: ${esc(u)}`);return say('بيانات الدخول غير صحيحة.','e')}
+ if(isLocked(r)){noteFail(r);save();log(false,`محاولة على حساب مقفل: ${esc(u)}`);return lockCountdown(u)}
+ if(waiting(r))return blockWait(u,r);
+ if(await hashPw(p,r.salt)!==r.hash)return fail(u,'كلمة مرور خاطئة');
+ pending=u;$('lp').value='';log(true,`${esc(u)}: كلمة المرور صحيحة، بانتظار OTP`);show('vO');$('oc').focus();startSim();
+};
+$('bO').onclick=async()=>{
+ const r=mem.users[pending];if(!r)return show('vL');
+ if(waiting(r))return blockWait(pending,r);
+ const norm=$('oc').value.trim().replace(/[-\s]/g,''),now=Date.now();
+ let ok=false;
+ if(/^\d{8}$/.test(norm)){
+  const i=(r.bc||[]).indexOf(await hashPw(norm,r.salt));
+  if(i>=0){r.bc.splice(i,1);ok=true;log(true,`${esc(pending)}: استُخدم رمز احتياطي (المتبقي ${r.bc.length})`)}
+ }else ok=(await Promise.all([-30000,0,30000].map(d=>totp(r.secret,now+d)))).includes(norm);
+ if(!ok)return fail(pending,'رمز OTP خاطئ');
+ const prev={ok:r.lastOk,fail:r.lastFail,n:r.failsSince||0};
+ r.fails=0;r.wait=0;r.lastOk=Date.now();r.failsSince=0;save();log(true,`${esc(pending)}: تسجيل دخول ناجح`);session=pending;
+ stopSim();$('who').textContent=`تم التحقق بنجاح. صلاحيتك: ${roleName(r.role)}. ${r.role==='admin'?'تقدر تعدّل بيانات ودرجات كل الطلاب من الأسفل.':'درجاتك معروضة أدناه للاطلاع فقط.'}`;showLast(prev);target=isAdmin()?null:session;$('hn').value=r.hint||'';renderGrades();renderAdmin();$('auth').classList.add('hide');$('portal').classList.remove('hide');curView='portal';$('bk').classList.remove('hide');
+};
+function fail(u,why){
+ const r=mem.users[u];r.fails++;noteFail(r);
+ if(r.fails>=3){r.locked=true;r.wait=0;r.until=Date.now()+lockMs();log(false,`${esc(u)}: ${why}، تم قفل الحساب مؤقتاً`);stopSim();pending=null;show('vL');save();return lockCountdown(u)}
+ r.wait=Date.now()+DELAYS[Math.min(r.fails,DELAYS.length)-1]*1000;save();log(false,`${esc(u)}: ${why} (${r.fails}/3)`);waitCountdown(u,why);
+}
+$('bX').onclick=()=>{pending=null;session=null;for(const k in fresh)delete fresh[k];$('adm').classList.add('hide');$('nr').innerHTML='';$('nsf').classList.add('hide');$('ll').innerHTML='';$('pb').innerHTML='';$('pc').innerHTML='';$('pm').innerHTML='';$('cp0').value=$('cp1').value='';$('portal').classList.add('hide');$('auth').classList.remove('hide');$('oc').value='';show('vL');log(true,'تسجيل خروج')};
+$('bD').onclick=()=>{askConfirm('مسح كل الحسابات والدرجات والسجل؟ لا يمكن التراجع عن ذلك.',()=>{mem={users:{},log:[],settings:mem.settings};save();session=null;pending=null;target=null;$('portal').classList.add('hide');$('adm').classList.add('hide');$('auth').classList.remove('hide');renderLog();show('vL');say('تم مسح كل البيانات.','o')})};
+
+function startSim(){stopSim();const tick=async()=>{const r=mem.users[pending];if(!r)return;$('sim').textContent=await totp(r.secret,Date.now());$('bar').style.width=(30000-Date.now()%30000)/300+'%'};tick();timer=setInterval(tick,250)}
+function stopSim(){clearInterval(timer)}
+$('lp').onkeydown=e=>{if(e.key==='Enter')$('bL').click()};
+$('oc').onkeydown=e=>{if(e.key==='Enter')$('bO').click()};
+
+let lastSvg='',lastName='',stream=null,raf=null;
+function badge(u,tok,el){
+ let svg='';try{const q=qrcode(0,'M');q.addData('SL1|'+encodeURIComponent(u)+'|'+tok);q.make();svg=q.createSvgTag(5,2)}catch(e){}
+ lastSvg=svg;lastName='barcode-login.svg';
+ el.innerHTML=svg?`<p class="sub">هذه بطاقة دخولك. احفظها ولا تشاركها مع أحد.</p><div class="qr">${svg}</div><br><br><button onclick="dl()">حفظ البطاقة</button>`:'<div class="msg e">تعذّر تحميل مكتبة QR (يلزم إنترنت).</div>';
+}
+function dl(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([lastSvg],{type:'image/svg+xml'}));a.download=lastName;a.click()}
+$('bN').onclick=async()=>{const r=mem.users[pending];if(!r)return;const tok=hex(crypto.getRandomValues(new Uint8Array(16)));r.tk=await hashPw(tok,r.salt);save();badge(pending,tok,$('pb'));log(true,`${esc(pending)}: إنشاء باركود دخول جديد (القديم أُلغي)`)};
+$('bB').onclick=()=>show('vB');$('bBk').onclick=()=>show('vL');
+$('bBt').onclick=()=>badgeLogin($('bt').value);$('bt').onkeydown=e=>{if(e.key==='Enter')$('bBt').click()};
+async function badgeLogin(text){
+ const p=text.trim().split('|');
+ if(p[0]!=='SL1'||p.length!==3){log(false,'باركود غير معروف');return say('الباركود غير صالح.','e')}
+ let u='';try{u=decodeURIComponent(p[1])}catch(e){}
+ const r=mem.users[u];
+ if(!r||!r.tk){log(false,'باركود لمستخدم غير موجود');return say('الباركود غير صالح.','e')}
+ if(isLocked(r)){noteFail(r);save();log(false,`محاولة بباركود على حساب مقفل: ${esc(u)}`);return lockCountdown(u)}
+ if(waiting(r))return blockWait(u,r);
+ if(await hashPw(p[2],r.salt)!==r.tk)return fail(u,'باركود غير صالح أو ملغى');
+ pending=u;$('bt').value='';log(true,`${esc(u)}: الباركود صحيح، بانتظار OTP`);show('vO');$('oc').focus();startSim();
+}
+$('bCam').onclick=async()=>{
+ try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});const v=$('vid');v.srcObject=stream;v.style.display='block';await v.play();scan()}
+ catch(e){say('تعذّر تشغيل الكاميرا. اسمح بالوصول إليها أو استخدم الحقل النصي.','e')}
+};
+function scan(){
+ const v=$('vid'),c=$('cv');if(!stream)return;
+ if(v.videoWidth){c.width=v.videoWidth;c.height=v.videoHeight;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(v,0,0);
+  const d=x.getImageData(0,0,c.width,c.height),r=typeof jsQR==='function'&&jsQR(d.data,d.width,d.height);
+  if(r&&r.data){stopCam();badgeLogin(r.data);return}}
+ raf=requestAnimationFrame(scan);
+}
+function stopCam(){if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;cancelAnimationFrame(raf);$('vid').style.display='none'}
+function isLocked(r){
+ if(r.locked&&r.until&&Date.now()>=r.until){r.locked=false;r.fails=0;r.until=0;save();log(true,'فتح الحساب تلقائياً بعد انتهاء مدة القفل')}
+ return r.locked;
+}
+function lockCountdown(u){
+ clearInterval(lt);
+ const tick=()=>{
+  const r=mem.users[u];if(!r){clearInterval(lt);return}
+  if(!isLocked(r)){clearInterval(lt);say('انتهت مدة القفل. تقدر تحاول من جديد.','o');return}
+  const left=Math.max(0,(r.until||0)-Date.now()),m=Math.floor(left/60000),sec=String(Math.floor(left%60000/1000)).padStart(2,'0');
+  say(r.until?`الحساب مقفل. يفتح تلقائياً بعد ${m}:${sec}`:'الحساب مقفل. يفتحه المدير يدوياً.','e');
+ };
+ tick();lt=setInterval(tick,1000);
+}
+$('lm').value=(mem.settings&&mem.settings.lockMin)||5;
+$('lm').oninput=()=>{const v=parseFloat($('lm').value);if(v>0){if(!mem.settings)mem.settings={};mem.settings.lockMin=v;save()}};
+const COMMON=['12345678','123456789','1234567890','password','password1','qwerty123','qwertyuiop','iloveyou','11111111','00000000','abc12345','admin123','letmein1','welcome1','12341234','87654321'];
+const isCommon=p=>COMMON.includes(p.toLowerCase())||/^(.)\1+$/.test(p);
+const kinds=p=>[/[a-z]/,/[A-Z]/,/\d/,/[^A-Za-z0-9]/].filter(x=>x.test(p)).length;
+function strength(p){
+ const L=p.length,k=kinds(p);
+ if(isCommon(p)||L<8)return 0;
+ if((L>=10&&k>=3)||(L>=14&&k>=2)||L>=18)return 4;
+ if(k>=2||L>=12)return 2;
+ return 1;
+}
+function tip(p){return p.length<10?'اجعلها 10 أحرف أو أكثر مع أرقام ورموز':'أضف رقماً أو رمزاً أو حرفاً كبيراً'}
+function pwError(p){
+ if(p.length<8)return 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.';
+ if(isCommon(p))return 'كلمة المرور شائعة وسهلة التخمين، اختر غيرها.';
+ if(strength(p)<2)return 'كلمة المرور ضعيفة. أضف أرقاماً أو حروفاً كبيرة أو رموزاً.';
+ return '';
+}
+function meter(){
+ const p=$('rp').value,b=$('sb'),t=$('st');
+ if(!p){b.style.width='0';t.style.color='';t.style.fontWeight='';t.textContent='قوة كلمة المرور: اكتب كلمة المرور لتظهر هنا';return}
+ const cm=isCommon(p),sc=strength(p);let w,c,l;
+ if(cm||sc<=1){w=25;c='var(--bad)';l=cm?'كلمة شائعة (ممنوعة)':'ضعيفة'}
+ else if(sc<=3){w=60;c='var(--acc)';l='متوسطة'}
+ else{w=100;c='var(--ok)';l='قوية'}
+ b.style.width=w+'%';b.style.background=c;t.textContent='قوة كلمة المرور: '+l+(sc>=4||cm?'':' ('+tip(p)+')');t.style.color=c;t.style.fontWeight='700';
+}
+$('rp').oninput=meter;
+
+let lastCodes=[];
+function newCodes(){return Array.from({length:8},()=>{const n=String(crypto.getRandomValues(new Uint32Array(1))[0]%100000000).padStart(8,'0');return n.slice(0,4)+'-'+n.slice(4)})}
+function hashCodes(codes,salt){return Promise.all(codes.map(c=>hashPw(c.replace('-',''),salt)))}
+function showCodes(codes,el){
+ lastCodes=codes;
+ el.innerHTML=`<p class="sub">احفظها بمكان آمن. كل رمز يعمل مرة وحدة فقط، ويُستعمل بدل رمز الجوال إذا ضاع.</p><div class="codes">${codes.map(c=>`<span>${c}</span>`).join('')}</div><br><button onclick="cp()">نسخ الرموز</button>`;
+}
+function cp(){try{navigator.clipboard.writeText(lastCodes.join('\n'))}catch(e){}}
+$('bC').onclick=async()=>{const r=mem.users[pending];if(!r)return;const codes=newCodes();r.bc=await hashCodes(codes,r.salt);save();showCodes(codes,$('pc'));log(true,`${esc(pending)}: إنشاء رموز احتياطية جديدة (القديمة أُلغيت)`)};
+
+$('bP').onclick=async()=>{
+ const r=mem.users[pending];if(!r)return;
+ const a=$('cp0').value,b=$('cp1').value,m=(t,c)=>{$('pm').innerHTML=`<div class="msg ${c}">${t}</div>`};
+ if(await hashPw(a,r.salt)!==r.hash)return m('كلمة المرور الحالية غير صحيحة.','e');
+ const e=pwError(b);if(e)return m(e,'e');
+ r.hash=await hashPw(b,r.salt);
+ const tok=hex(crypto.getRandomValues(new Uint8Array(16)));r.tk=await hashPw(tok,r.salt);save();
+ log(true,`${esc(pending)}: تغيير كلمة المرور وإلغاء الباركود القديم`);
+ $('cp0').value=$('cp1').value='';m('تم تغيير كلمة المرور. أُلغي الباركود القديم، وهذا باركودك الجديد:','o');badge(pending,tok,$('pb'));
+};
+
+$('bE').onclick=()=>{
+ const un=x=>x.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&amp;/g,'&');
+ const q=x=>'"'+String(x).replace(/"/g,'""')+'"';
+ const rows=[['الوقت','النتيجة','التفاصيل'].map(q).join(',')].concat(mem.log.slice().reverse().map(l=>[l.ts?new Date(l.ts).toLocaleString('en-GB'):l.t,l.ok?'ناجح':'فاشل',un(l.text)].map(q).join(',')));
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+rows.join('\r\n')],{type:'text/csv;charset=utf-8'}));a.download='security-log.csv';a.click();
+};
+document.querySelectorAll('.sh').forEach(c=>c.onchange=()=>c.dataset.t.split(',').forEach(id=>{$(id).type=c.checked?'text':'password'}));
+$('hn').oninput=()=>{const r=mem.users[pending];if(r){r.hint=$('hn').value;save()}};
+$('bH').onclick=()=>{const r=mem.users[$('lu').value.trim()],h=r&&r.hint;say(h?'التلميح: '+esc(h):'لا يوجد تلميح لهذا الحساب.',h?'o':'e')};
+$('bk').onclick=()=>{
+ if(curView==='portal'){if(isAdmin()&&target){target=null;renderGrades();return}askConfirm('هل تريد الخروج من الحساب؟',()=>$('bX').click(),'نعم، خروج','لا، بقاء');return}
+ if(curView==='vQ'){askConfirm('الباركود والرموز الاحتياطية تظهر مرة وحدة فقط. هل حفظتها؟',()=>show('vL'));return}
+ if(curView==='vO'){pending=null;stopSim();$('oc').value=''}
+ show('vL');
+};
+const DELAYS=[3,10]; // ثواني الانتظار بعد المحاولة الفاشلة الأولى ثم الثانية (الثالثة تقفل الحساب)
+const roleName=x=>x==='admin'?'مدير':'طالب';
+const isAdmin=()=>!!(session&&mem.users[session]&&mem.users[session].role==='admin');
+const fmt=ts=>new Date(ts).toLocaleString('en-GB');
+const waiting=r=>!!(r.wait&&Date.now()<r.wait);
+function noteFail(r){r.lastFail=Date.now();r.failsSince=(r.failsSince||0)+1}
+function waitCountdown(u,why){
+ clearInterval(lt);
+ const tick=()=>{
+  const r=mem.users[u];if(!r){clearInterval(lt);return}
+  const left=Math.ceil(((r.wait||0)-Date.now())/1000),rem=3-r.fails;
+  if(left<=0){clearInterval(lt);say(why==='محاولة مبكرة جداً'?`انتهى وقت الانتظار. المحاولات المتبقية: ${rem}. تقدر تحاول الآن.`:`${why}. المحاولات المتبقية: ${rem}. تقدر تحاول الآن.`,'e');return}
+  say(`${why}. المحاولات المتبقية: ${rem}. انتظر ${left} ثانية قبل المحاولة التالية.`,'e');
+ };
+ tick();lt=setInterval(tick,500);
+}
+function blockWait(u,r){noteFail(r);save();log(false,`${esc(u)}: محاولة خلال فترة الانتظار (رُفضت)`);waitCountdown(u,'محاولة مبكرة جداً')}
+
+function showLast(p){
+ let h=p.ok?`آخر دخول ناجح: <b dir="ltr">${fmt(p.ok)}</b>`:'لا يوجد سجل لدخول سابق لهذا الحساب.';
+ h+=p.n>0?`<br><span class="bad">⚠ سُجّلت ${p.n} محاولة فاشلة على حسابك منذ آخر دخول، آخرها: <b dir="ltr">${fmt(p.fail)}</b>. إذا لم تكن أنت، غيّر كلمة مرورك فوراً.</span>`:'<br><span class="ok">لا توجد محاولات فاشلة منذ آخر دخول.</span>';
+ $('ll').innerHTML=h;
+}
+
+function ensureRoles(){
+ const us=Object.keys(mem.users);
+ us.forEach(u=>{if(!mem.users[u].role)mem.users[u].role='student'});
+ if(us.length&&!us.some(u=>mem.users[u].role==='admin'))mem.users[us[0]].role='admin';
+ save();
+}
+function renderAdmin(){
+ const a=isAdmin();$('adm').classList.toggle('hide',!a);if(!a)return;
+ $('ut').innerHTML='<tr><th>الحساب</th><th>الصلاحية</th><th>الحالة</th><th>آخر دخول</th><th>إجراءات</th></tr>'+Object.keys(mem.users).map(u=>{
+  const r=mem.users[u],lk=isLocked(r),me=u===session;
+  const st=lk?`<span class="bad">مقفل${r.until?` (${Math.ceil(Math.max(0,r.until-Date.now())/60000)} د)`:''}</span>`:'<span class="ok">مفتوح</span>';
+  const acts=(lk?`<button data-a="unlock" data-u="${esc(u)}">فك القفل</button> `:'')+(me?'':`<button data-a="role" data-u="${esc(u)}">${r.role==='admin'?'تحويل لطالب':'ترقية لمدير'}</button> <button data-a="del" data-u="${esc(u)}">حذف</button>`);
+  return `<tr><td data-l="الحساب">${esc(u)}${me?' (أنت)':''}</td><td data-l="الصلاحية">${roleName(r.role)}</td><td data-l="الحالة">${st}</td><td data-l="آخر دخول"><span dir="ltr">${r.lastOk?fmt(r.lastOk):'-'}</span></td><td>${acts}</td></tr>`;
+ }).join('');
+}
+$('ut').onclick=e=>{
+ const b=e.target.closest('button');if(!b||!isAdmin())return;
+ const u=b.dataset.u,r=mem.users[u],act=b.dataset.a;if(!r)return;
+ if(act==='unlock'){r.locked=false;r.fails=0;r.until=0;r.wait=0;save();log(true,`المدير ${esc(session)} فتح قفل الحساب ${esc(u)}`)}
+ else if(u===session)return;
+ else if(act==='role'){r.role=r.role==='admin'?'student':'admin';save();log(true,`المدير ${esc(session)} غيّر صلاحية ${esc(u)} إلى ${roleName(r.role)}`)}
+ else if(act==='del'){askConfirm('حذف الحساب '+u+' نهائياً؟',()=>{if(!isAdmin()||!mem.users[u])return;delete mem.users[u];save();log(true,`المدير ${esc(session)} حذف الحساب ${esc(u)}`);renderAdmin();renderGrades()});return}
+ renderAdmin();renderGrades();
+};
+$('bUA').onclick=()=>{
+ if(!isAdmin())return;
+ for(const u in mem.users){const r=mem.users[u];r.locked=false;r.fails=0;r.until=0;r.wait=0}
+ save();log(true,`المدير ${esc(session)} فك قفل جميع الحسابات`);renderAdmin();$('am').innerHTML='<div class="msg o">تم فك قفل جميع الحسابات.</div>';
+};
+let target=null;
+function renderGrades(){
+ const adm=isAdmin();
+ if(!adm)target=session;
+ else if(target&&!mem.users[target])target=null;
+ $('ap').classList.toggle('hide',!(adm&&!target));
+ if(adm&&!target){$('fv').classList.add('hide');renderList();return}
+ const r=mem.users[target];
+ $('fv').classList.toggle('hide',!r);
+ if(!r)return;
+ if(!r.grades)r.grades=[];
+ $('bBk2').classList.toggle('hide',!adm);
+ $('gh').textContent=adm?'ملف الطالب: '+(r.name||target):'درجاتك';
+ $('sn').value=r.name||target;$('sn').readOnly=!adm;
+ $('bA').classList.toggle('hide',!adm);$('fa').classList.toggle('hide',!adm);renderVerify();$('fl').textContent='اسم الدخول: '+target;
+ const head='<tr><th>المادة</th><th>الدرجة</th>'+(adm?'<th></th>':'')+'</tr>';
+ const rows=r.grades.map((g,i)=>adm
+  ?`<tr><td><input data-i="${i}" data-k="0" value="${esc(g[0])}"></td><td><input data-i="${i}" data-k="1" value="${esc(g[1])}"></td><td><button data-d="${i}">حذف</button></td></tr>`
+  :`<tr><td>${esc(g[0])}</td><td>${esc(g[1])}</td></tr>`).join('');
+ $('gt').innerHTML=head+(rows||'<tr><td colspan="3" class="sub">لا توجد درجات مسجّلة بعد.</td></tr>');
+}
+function renderList(){
+ if(!isAdmin())return;
+ const all=Object.keys(mem.users).filter(u=>mem.users[u].role!=='admin');
+ $('fw').classList.toggle('hide',all.length<6);
+ const q=all.length>=6?$('fs').value.trim().toLowerCase():'';
+ const list=all.filter(u=>!q||u.toLowerCase().includes(q)||(mem.users[u].name||'').toLowerCase().includes(q));
+ $('at').innerHTML=list.length
+  ?list.map(u=>{const x=mem.users[u],nm=x.name||u;return `<tr><td><button data-s="${esc(u)}" style="width:100%;text-align:right">${esc(nm)}${x.name&&x.name!==u?` <span class="sub">(${esc(u)})</span>`:''}</button></td></tr>`}).join('')
+  :`<tr><td class="sub">${all.length?'لا توجد نتائج.':'لا يوجد طلاب بعد. اضغط الزر الأصفر «+ إضافة طالب» بالأعلى، وبعد إنشاء الطالب اضغط على اسمه لتضيف مواده ودرجاته.'}</td></tr>`;
+}
+$('fs').oninput=renderList;
+$('at').onclick=e=>{const u=e.target.dataset.s;if(isAdmin()&&u&&mem.users[u]){target=u;$('nr').innerHTML='';$('fm').innerHTML='';$('fp').value='';renderGrades();window.scrollTo({top:0,behavior:'smooth'})}};
+$('gt').oninput=e=>{const t=e.target,r=mem.users[target];if(isAdmin()&&r&&t.dataset.i!==undefined){r.grades[t.dataset.i][t.dataset.k]=t.value;save()}};
+$('gt').onclick=e=>{const d=e.target.dataset.d,r=mem.users[target];if(isAdmin()&&r&&d!==undefined){r.grades.splice(d,1);save();renderGrades()}};
+$('bA').onclick=()=>{const r=mem.users[target];if(isAdmin()&&r){r.grades.push(['','']);save();renderGrades()}};
+$('sn').oninput=()=>{const r=mem.users[target];if(isAdmin()&&r){r.name=$('sn').value;save()}};
+$('sn').onchange=()=>{if(isAdmin())renderGrades()};
+$('bBk2').onclick=()=>{if(isAdmin()){target=null;renderGrades()}};
+function genPw(){
+ const L='abcdefghijkmnpqrstuvwxyz',U='ABCDEFGHJKLMNPQRSTUVWXYZ',D='23456789',S='@#$%&*!';
+ const rnd=n=>crypto.getRandomValues(new Uint32Array(1))[0]%n,pick=x=>x[rnd(x.length)];
+ const a=[pick(U),pick(L),pick(D),pick(S)];
+ while(a.length<10)a.push(pick(L+U+D));
+ for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}
+ return a.join('');
+}
+$('bGen').onclick=()=>{$('np').value=genPw();$('np').type='text';document.querySelector('.sh[data-t="np"]').checked=true;$('nm').innerHTML='<div class="msg o">تم توليد كلمة مرور قوية. انسخها أو سجّلها قبل الإنشاء لتسلّمها للطالب.</div>'};
+$('nn').oninput=$('np').oninput=()=>{$('nm').innerHTML=''};
+const fresh={};
+function cpFresh(){lastCodes=fresh[target]||[];cp()}
+function renderVerify(){
+ const r=mem.users[target],ok=isAdmin()&&!!r;
+ $('fq').classList.toggle('hide',!ok);
+ if(!ok)return;
+ let svg='';try{const q=qrcode(0,'M');q.addData(`otpauth://totp/SecureLogin:${encodeURIComponent(target)}?secret=${r.secret}&issuer=SecureLogin`);q.make();svg=q.createSvgTag(4,0)}catch(e){}
+ $('fqr').innerHTML=svg?`<div class="qr">${svg}</div>`:'<div class="msg e">تعذّر تحميل مكتبة QR (يلزم إنترنت). استخدم المفتاح اليدوي.</div>';
+ $('fk').textContent=r.secret;
+ const c=fresh[target];
+ $('fc').innerHTML=c?`<div class="codes">${c.map(x=>`<span>${x}</span>`).join('')}</div><br><button onclick="cpFresh()">نسخ الرموز</button>`:'<p class="sub" style="margin:0">الرموز القديمة لا تُعرض مرة ثانية للأمان. اضغط الزر أدناه لإنشاء رموز جديدة (تُلغى القديمة).</p>';
+}
+$('bFc').onclick=async()=>{
+ const r=mem.users[target];if(!isAdmin()||!r)return;
+ const codes=newCodes();r.bc=await hashCodes(codes,r.salt);save();fresh[target]=codes;
+ log(true,`المدير ${esc(session)} أنشأ رموزاً احتياطية جديدة للطالب ${esc(target)}`);renderVerify();
+};
+let cfYes=null;
+function askConfirm(msg,yes,yl,nl){$('cm').textContent=msg;$('cy').textContent=yl||'نعم، تأكيد';$('cn').textContent=nl||'إلغاء';cfYes=yes;$('cf').classList.remove('hide')}
+$('cy').onclick=()=>{$('cf').classList.add('hide');const f=cfYes;cfYes=null;if(f)f()};
+$('cn').onclick=()=>{$('cf').classList.add('hide');cfYes=null};
+$('bFp').onclick=async()=>{
+ const r=mem.users[target];if(!isAdmin()||!r)return;
+ const p=$('fp').value,m=(t,c)=>{$('fm').innerHTML=`<div class="msg ${c}">${t}</div>`},e=pwError(p);
+ if(e)return m(e,'e');
+ r.hash=await hashPw(p,r.salt);r.locked=false;r.fails=0;r.until=0;r.wait=0;save();$('fp').value='';
+ log(true,`المدير ${esc(session)} عيّن كلمة مرور جديدة للطالب ${esc(target)}`);m('تم تعيين كلمة المرور الجديدة.','o');
+};
+$('bFd').onclick=()=>{
+ const r=mem.users[target];if(!isAdmin()||!r||target===session)return;
+ const u=target;
+ askConfirm('حذف الطالب '+u+' وكل درجاته نهائياً؟',()=>{if(!isAdmin()||!mem.users[u])return;delete mem.users[u];save();log(true,`المدير ${esc(session)} حذف الطالب ${esc(u)}`);target=null;renderGrades();renderAdmin()});
+};
+async function makeAccount(u,p,name){
+ const salt=hex(crypto.getRandomValues(new Uint8Array(16))),secret=b32(crypto.getRandomValues(new Uint8Array(20))),tok=hex(crypto.getRandomValues(new Uint8Array(16))),codes=newCodes();
+ mem.users[u]={salt,hash:await hashPw(p,salt),tk:await hashPw(tok,salt),bc:await hashCodes(codes,salt),secret,fails:0,locked:false,role:'student',name:name||'',grades:[]};
+ save();return {secret,codes};
+}
+$('bNs').onclick=()=>{$('nsf').classList.remove('hide');if(!$('nn').value)$('nn').value=$('fs').value.trim();$('nn').focus()};
+$('bNx').onclick=()=>{$('nsf').classList.add('hide');$('nm').innerHTML=''};
+$('bNc').onclick=async()=>{
+ if(!isAdmin())return;
+ const name=$('nn').value.trim(),p=$('np').value,m=(t,c)=>{$('nm').innerHTML=`<div class="msg ${c}">${t}</div>`};
+ if(!name){$('nn').focus();return m('اكتب اسم الطالب.','e')}
+ if(name.includes('|'))return m('الاسم لا يجوز أن يحتوي على الرمز |','e');
+ if(Object.keys(mem.users).some(k=>k.toLowerCase()===name.toLowerCase()))return m('يوجد حساب بهذا الاسم مسبقاً.','e');
+ const pe=pwError(p);if(pe)return m(pe,'e');
+ const x=await makeAccount(name,p,name);
+ log(true,`المدير ${esc(session)} أضاف الطالب ${esc(name)}`);
+ $('nn').value='';$('np').value='';$('nm').innerHTML='';$('nsf').classList.add('hide');$('fs').value='';
+ fresh[name]=x.codes;$('nr').innerHTML=`<div class="msg o">تمت إضافة الطالب «${esc(name)}». اضغط على اسمه من القائمة لعرض بيانات التحقق وإضافة مواده ودرجاته.</div>`;renderGrades();renderAdmin();
+};
+(function(){let ok=true;try{localStorage.setItem('sa_t','1');localStorage.removeItem('sa_t')}catch(e){ok=false}$('sw').classList.toggle('hide',ok)})();
+ensureRoles();
+$('bAb').onclick=()=>show('vA');
+renderLog();
+</script>
+</body>
+</html>
